@@ -182,7 +182,6 @@ Notes:
 
 ## Future Improvements
 
-- Add **Swagger/OpenAPI** for API documentation  
 - Extend **RiskAssessmentService** with AI-based content scanning  
 - Support **dynamic rules reload** without restarting the service  
 - Integrate **external audit storage** (database or cloud)  
