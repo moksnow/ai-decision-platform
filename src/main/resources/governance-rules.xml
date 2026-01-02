@@ -1,0 +1,103 @@
+<governanceRules>
+
+    <!-- ========== GLOBAL SAFETY RULES ========== -->
+
+    <rule id="R-001" context="ANY" source="ANY" maxRisk="LOW" action="ALLOW">
+        <description>Allow low-risk content by default</description>
+    </rule>
+
+    <rule id="R-002" context="ANY" source="ANY" maxRisk="MEDIUM" action="ALLOW">
+        <description>Allow medium-risk content with monitoring</description>
+    </rule>
+
+    <rule id="R-003" context="ANY" source="ANY" maxRisk="HIGH" action="DENY">
+        <description>Block high-risk content globally</description>
+    </rule>
+
+    <rule id="R-004" context="ANY" source="ANY" maxRisk="CRITICAL" action="DENY">
+        <description>Block critical-risk content globally</description>
+    </rule>
+
+    <!-- ========== HEALTH DATA RULES ========== -->
+
+    <rule id="R-005" context="HEALTH_RECORD" source="INTERNAL_USER" maxRisk="MEDIUM" action="DENY">
+        <description>Block clinicians from sending patient data to AI</description>
+    </rule>
+
+    <rule id="R-006" context="HEALTH_RECORD" source="INTERNAL_SERVICE" maxRisk="LOW" action="ALLOW">
+        <description>Allow backend services to process anonymized health data</description>
+    </rule>
+
+    <rule id="R-007" context="HEALTH_RECORD" source="EXTERNAL_PARTNER" maxRisk="LOW" action="DENY">
+        <description>External partners cannot access health records</description>
+    </rule>
+
+    <rule id="R-008" context="MEDICAL_RESEARCH" source="INTERNAL_SERVICE" maxRisk="MEDIUM" action="ALLOW">
+        <description>Allow AI usage for medical research if anonymized</description>
+    </rule>
+
+    <rule id="R-009" context="MEDICAL_RESEARCH" source="EXTERNAL_PARTNER" maxRisk="LOW" action="DENY">
+        <description>External research partners blocked by default</description>
+    </rule>
+
+    <!-- ========== FINANCIAL RULES ========== -->
+
+    <rule id="R-010" context="FINANCIAL_DATA" source="ANY" maxRisk="LOW" action="DENY">
+        <description>Block AI usage for financial data</description>
+    </rule>
+
+    <rule id="R-011" context="FINANCIAL_DATA" source="SYSTEM_JOB" maxRisk="LOW" action="ALLOW">
+        <description>Allow automated summarization jobs for finance</description>
+    </rule>
+
+    <!-- ========== CUSTOMER & INTERNAL DATA ========== -->
+
+    <rule id="R-012" context="CUSTOMER_SUPPORT" source="INTERNAL_USER" maxRisk="MEDIUM" action="ALLOW">
+        <description>Allow AI for customer support drafts</description>
+    </rule>
+
+    <rule id="R-013" context="CUSTOMER_SUPPORT" source="EXTERNAL_PARTNER" maxRisk="LOW" action="DENY">
+        <description>Block external access to customer messages</description>
+    </rule>
+
+    <rule id="R-014" context="INTERNAL_NOTE" source="INTERNAL_USER" maxRisk="MEDIUM" action="ALLOW">
+        <description>Allow AI assistance for internal notes</description>
+    </rule>
+
+    <!-- ========== SOURCE TRUST RULES ========== -->
+
+    <rule id="R-015" context="ANY" source="EXTERNAL_PARTNER" maxRisk="MEDIUM" action="DENY">
+        <description>External partners limited to low-risk only</description>
+    </rule>
+
+    <rule id="R-016" context="ANY" source="SYSTEM_JOB" maxRisk="MEDIUM" action="ALLOW">
+        <description>Automated jobs allowed for controlled use</description>
+    </rule>
+
+    <!-- ========== DATA PROTECTION RULES ========== -->
+
+    <rule id="R-017" context="ANY" source="ANY" maxRisk="CRITICAL" action="DENY">
+        <description>Personal identifiable information must never reach AI</description>
+    </rule>
+
+    <rule id="R-018" context="ANY" source="ANY" maxRisk="HIGH" action="DENY">
+        <description>Medical diagnosis content requires human review</description>
+    </rule>
+
+    <!-- ========== FALLBACK & DEFAULT ========== -->
+
+    <rule id="R-019" context="GENERIC_TEXT" source="ANY" maxRisk="MEDIUM" action="ALLOW">
+        <description>Allow AI usage for generic non-sensitive text</description>
+    </rule>
+
+    <rule id="R-020" context="ANY" source="ANY" maxRisk="LOW" action="ALLOW">
+        <description>Explicit allow rule for low-risk scenarios</description>
+    </rule>
+
+    <!-- ========== STRICT DEFAULT DENY ========== -->
+
+    <rule id="R-021" context="ANY" source="ANY" maxRisk="MEDIUM" action="DENY">
+        <description>Default deny if no explicit allow rule matches</description>
+    </rule>
+
+</governanceRules>

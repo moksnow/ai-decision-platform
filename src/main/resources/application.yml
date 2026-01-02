@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ai-decision-platform
+
+logging:
+  level:
+    root: INFO
+    com.health.ai.decision.platform: DEBUG
+  file:
+    name: logs/decision-platform.log
+
+governance:
+  rules-file: "classpath:governance-rules.xml"
