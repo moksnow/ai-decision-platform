@@ -18,15 +18,16 @@ public class DecisionService {
 
     private final GovernanceService governanceService;
     private final RiskAssessmentService riskAssessmentService;
+    private final AnonymizationService anonymizationService;
     private final AuditService auditService;
     private final AiProvider aiProvider;
 
     public DecisionResponse decide(DecisionRequest request) {
 
-        // 1. Platform derives risk (never trust client estimation)
+        // 1. Derive risk level internally
         RiskLevel riskLevel = riskAssessmentService.assess(request);
 
-        // 2. Governance rules decide if AI usage is allowed
+        // 2. Governance evaluation
         boolean allowed = governanceService.isAllowed(request, riskLevel);
 
         DecisionResponse response = new DecisionResponse();
@@ -34,13 +35,19 @@ public class DecisionService {
         response.setRiskLevel(riskLevel);
 
         if (allowed) {
-            // Only call AI if governance allows
-            String aiResult = aiProvider.callAI(request);
-            response.setDecisionReason("Approved. AI output: " + aiResult);
+            // 3. Anonymize before sending to AI
+            DecisionRequest anonymizedRequest = anonymizationService.anonymize(request);
+
+            // 4. Call AI provider (dummy or real)
+            String aiResult = aiProvider.callAI(anonymizedRequest);
+
+            response.setAiOutput(aiResult);
+            response.setDecisionReason("Approved by governance. AI processed anonymized content.");
         } else {
             response.setDecisionReason("Blocked by governance rules");
         }
 
+        // 5. Always audit (even blocked decisions)
         auditService.logDecision(request, response);
 
         return response;

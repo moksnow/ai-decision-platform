@@ -24,4 +24,7 @@ public class DecisionResponse {
      * Human-readable explanation for auditing and debugging.
      */
     private String decisionReason;
+
+    private String aiOutput;
+
 }

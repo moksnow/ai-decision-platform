@@ -6,29 +6,62 @@
 
 ## Overview
 
-**AI Decision Platform - Health Case Study** is a **backend Spring Boot service** designed to demonstrate **technical leadership in building enterprise AI systems** with a focus on **health-related scenarios**.
+**AI Decision Platform - Health Case Study** is a **backend Spring Boot service** designed to demonstrate **technical
+leadership in building enterprise AI systems** with a focus on **health-related scenarios**.
 
 It provides:
 
-- Policy-driven AI request evaluation via a **governance rule engine**  
-- **Risk assessment** abstraction for sensitive health data  
-- **Audit logging** for all AI decision requests  
-- A **template architecture** for building AI systems in healthcare organizations  
+- Policy-driven AI request evaluation via a **governance rule engine**
+- **Risk assessment** abstraction for sensitive health data
+- **Internal anonymization of health-related content before AI usage**
+- **Audit logging** for all AI decision requests
+- A **template architecture** for building AI systems in healthcare organizations
 
-> This project is **not an AI model itself** — it focuses on **decision governance, compliance, and auditability** in a health case study context.
+> This project is **not an AI model itself** — it focuses on **decision governance, compliance, anonymization, and
+auditability** in a health case study context.
+
+---
+
+## Key Concepts (Health-Focused)
+
+### 1. Governance before AI
+
+AI is **never called directly**. Every request is evaluated by governance rules based on:
+
+- Request context (e.g. health record, research, generic text)
+- Request source (internal service, user, external partner)
+- Internally assessed risk level
+
+### 2. Risk Assessment
+
+The platform derives risk **internally** (never trusted from client input), based on:
+
+- Content analysis (keywords, patterns)
+- Health and financial context
+
+### 3. Anonymization (Internal Only)
+
+For allowed requests:
+
+- Sensitive health data (names, emails, IDs, etc.) is **anonymized internally**
+- **Only anonymized content is sent to the AI provider**
+- Raw or anonymized content is **never returned** in API responses
+
+This aligns with healthcare compliance principles such as **data minimization** and **least privilege**.
 
 ---
 
 ## Features
 
-- REST API endpoint for submitting AI requests  
-- Governance rules engine that evaluates requests based on XML-defined rules  
-- Risk assessment service (pluggable, can be customized)  
-- Audit logging to file (no database required)  
-- Enum-based modeling for **request source** and **request context**  
-- Extensible XML rules for **allow/deny decisions**  
+- REST API endpoint for submitting AI decision requests
+- Governance rules engine (XML-based)
+- Risk assessment service (pluggable logic)
+- **Internal anonymization layer for health data**
+- Audit logging to file (no database required)
+- Enum-based modeling for request context and source
+- Extensible XML rules for allow/deny decisions
 - Fully backend-focused (Spring Boot + Java 21)
-- Health-specific case study examples for **patient records and medical research**  
+- Health-specific case study scenarios
 
 ---
 
@@ -42,15 +75,15 @@ ai-decision-platform
 │   │   ├── DecisionService.java
 │   │   ├── GovernanceService.java
 │   │   ├── RiskAssessmentService.java
+│   │   ├── AnonymizationService.java
 │   │   ├── AuditService.java
 │   │   └── rule/GovernanceRuleEngine.java
 │   ├── model/
 │   │   ├── DecisionRequest.java
 │   │   ├── DecisionResponse.java
 │   │   ├── RequestContext.java
-│   │   ├── RequestSource.java
-│   │   └── GovernanceRule.java
-│   └── AiDecisionPlatformApplication.java
+│   │   └── RequestSource.java
+│   └── DecisionPlatformApplication.java
 └── src/main/resources/
     ├── application.yml
     └── governance-rules.xml
@@ -65,21 +98,22 @@ Rules are defined in `src/main/resources/governance-rules.xml`.
 Example:
 
 ```xml
+
 <rule id="R001" context="GENERIC_TEXT" source="INTERNAL_SERVICE" maxRisk="LOW" action="ALLOW">
     <description>
-        Allow internal services for general-purpose requests with low sensitivity
+        Allow internal services for low-risk, non-sensitive requests
     </description>
 </rule>
 ```
 
 Each rule contains:
 
-- `id` → unique identifier  
-- `context` → request context (`RequestContext` enum)  
-- `source` → origin of request (`RequestSource` enum)  
-- `maxRisk` → maximum risk level allowed  
-- `action` → ALLOW / DENY  
-- `description` → human-readable explanation  
+- `id` → unique identifier
+- `context` → request context (`RequestContext` enum)
+- `source` → origin of request (`RequestSource` enum)
+- `maxRisk` → maximum risk level allowed
+- `action` → ALLOW / DENY
+- `description` → human-readable explanation
 
 ---
 
@@ -95,34 +129,14 @@ curl -X POST http://localhost:8080/api/decision   -H "Content-Type: application/
       }'
 ```
 
-**Response:**
-
-```json
-{
-  "allowed": true,
-  "message": "Request allowed by governance rules",
-  "assessedRisk": "LOW"
-}
-```
-
 ### Denied Request (Health Data Example)
 
 ```bash
 curl -X POST http://localhost:8080/api/decision   -H "Content-Type: application/json"   -d '{
-        "content": "This contains sensitive patient data",
+        "content": "Patient John Doe, SSN 123-45-6789",
         "context": "HEALTH_RECORD",
         "requestSource": "EXTERNAL_PARTNER"
       }'
-```
-
-**Response:**
-
-```json
-{
-  "allowed": false,
-  "message": "Request denied by governance rules",
-  "assessedRisk": "HIGH"
-}
 ```
 
 ---
@@ -131,9 +145,9 @@ curl -X POST http://localhost:8080/api/decision   -H "Content-Type: application/
 
 ### Prerequisites
 
-- Java 21  
-- Maven 3.8+  
-- Spring Boot 3.5.9  
+- Java 21
+- Maven 3.8+
+- Spring Boot 3.5.9
 
 ### Build & Run
 
@@ -167,29 +181,29 @@ governance:
 
 Notes:
 
-- Governance rules XML path must match `governance.rulesFile`  
+- Governance rules XML path must match `governance.rulesFile`
 - Audit logs are written automatically to `logs/audit.log`
 
 ---
 
 ## Testing
 
-- Use the **cURL examples** above to test allowed/denied requests  
-- Add **unit tests** for `DecisionService` and `GovernanceRuleEngine` for automated validation  
+- Use the **cURL examples** above to test allowed/denied requests
+- Add **unit tests** for `DecisionService` and `GovernanceRuleEngine` for automated validation
 - Health-specific test cases demonstrate patient data governance
 
 ---
 
 ## Future Improvements
 
-- Extend **RiskAssessmentService** with AI-based content scanning  
-- Support **dynamic rules reload** without restarting the service  
-- Integrate **external audit storage** (database or cloud)  
-- Extend for **multi-tenant AI governance**  
-- Add more **health-specific scenarios** (research, anonymized datasets, patient communication)  
+- Extend **RiskAssessmentService** with AI-based content scanning
+- Support **dynamic rules reload** without restarting the service
+- Integrate **external audit storage** (database or cloud)
+- Extend for **multi-tenant AI governance**
+- Add more **health-specific scenarios** (research, anonymized datasets, patient communication)
 
 ---
 
 ## License
 
-MIT License © 2026 Moh Khandan
+MIT License © 2026

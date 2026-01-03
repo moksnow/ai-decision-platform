@@ -4,6 +4,7 @@ import com.health.ai.reco.decision_platform.model.enums.RequestContext;
 import com.health.ai.reco.decision_platform.model.enums.RequestSource;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 import lombok.Data;
 
 /**
@@ -12,6 +13,7 @@ import lombok.Data;
  */
 
 @Data
+@Builder
 public class DecisionRequest {
 
     @NotBlank
